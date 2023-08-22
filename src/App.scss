@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap');
+
+*{
+    font-family: 'Josefin Sans', sans-serif;
+   
+}
+
+.item{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.item button{
+    padding: 0 20px;
+}
+.just{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.RootTool{
+    display: flex; 
+    justify-content: space-evenly;
+}
+.DivisionToCalendar{   
+    display:flex;
+    justify-content: flex-end;
+    align-items:flex-end;
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+.List{
+    word-break: break-all;
+    width:70%;
+    text-align: center;
+}
+.Add{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+.WindowNote{
+    background-image: url("./img/NOTE.png");
+    background-size: 100% 110%;
+}
+.CalendarGrid{
+    display: grid;
+    grid-template-columns: 2fr 2fr 2fr 2fr 2fr 2fr;
+    grid-template-rows: 2fr 2fr 2fr 2fr;
+    border: 1px solid black;
+}
+.CalendarGridChild{
+    grid-column: 3 / 4;
+    grid-row: 3/ 4;
+}
+.CalendarRoot{
+    width:50vw;
+}
+.CalendarActualDate{
+    width:150px;
+
+}
+
+@media screen and (max-width:1400px){
+    .RootTool{
+        flex-direction: column;
+        align-items: center;
+    }
+    .CalendarRoot{
+        width:700px;
+    }
+    
+}
