@@ -1,16 +1,24 @@
 import NotesRender from "./NotesRender"
 import Calendar from "./Calendar";
 import {create} from 'zustand'
+import AddToCalendarHandler from "./AddToCalendar";
 
-interface Store  {
+interface CalendarObject {
+    lastDateRequested: string | undefined;
+    lastValueRequested: string | undefined;
+    [date: string]: string | undefined; 
+}
+
+interface Store{
     notesStore: string[]
     calendarStore: string[]
+    calendarObject:CalendarObject
+    setCalendarObject(calendarDate:string,calendarNote:string):void
 }
 
 function getNotesStorage(){
     const notesStorage=localStorage.getItem('notes');
     if(notesStorage){
-
         return JSON.parse(notesStorage);
     }
     else{
@@ -20,26 +28,49 @@ function getNotesStorage(){
 function getCalendarStorage(){
     const calendarStorage=localStorage.getItem('calendar');
     if(calendarStorage){
-        return [calendarStorage]
+        return JSON.parse(calendarStorage)
     }
     else{
         return[];
     }
 }
+function getCalendarObject(){
+    const calendarObject=localStorage.getItem('calendarObject');
+    if(calendarObject){
+        return JSON.parse(calendarObject)
+    }
+    else{
+        return[];
+    }
+} 
 
 export const useStore = create<Store>((set) => ({
     notesStore: getNotesStorage(),
-    calendarStore: getCalendarStorage()
-  }))
+    calendarStore: getCalendarStorage(),
+    calendarObject:getCalendarObject(),
+    setCalendarObject: (calendarDate, calendarNote) => set((state) => ({
+        calendarObject: {
+          ...state.calendarObject,
+          [calendarDate]: calendarNote,
+          lastDateRequested: calendarDate,
+          lastValueRequested: calendarNote
+        }
+      })),
+  }));
 
-
-
-
+  
 export default function Controller(){
     return (
+        <>
         <div className="RootTool">
             <NotesRender/>
             <Calendar />
+            <hr />
         </div>
+
+          <footer>
+          <p>Made by Danie</p>
+      </footer>
+      </>
     )
 }

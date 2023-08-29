@@ -1,10 +1,9 @@
 import { useState,useEffect } from "react";
 import {useStore} from './Controller'
-import React from 'react';
+import CalendarTable from "./CalendarTable";
 
 function daysInMonth(year:number, month:number) {
     const newDate= new Date(year, month+1, 0).getDate();
-    console.log("newDate"+newDate);
     return newDate;
 }
 function getNumberMonthByName(monthName:string){
@@ -16,106 +15,143 @@ function getMonthName(monthNumber:number) {
     date.setMonth(monthNumber - 1);
     return date.toLocaleString('en-US', { month: 'long' });
 }
+function getActualDay(){
+    const date = new Date(); 
+    let day= date.getDay()+27; 
+    return day;
+}
+
 function getActualMonth(){
     const date = new Date(); 
     let month= date.getMonth()+1; 
-    return month;
+    return getMonthName(month);
 }
 function getActualYear(){
     const date = new Date(); 
     const year= date.getFullYear(); 
     return year;
 }
+function getActualDate(){
+    return getActualYear() + '-' + getNumberMonthByName(getActualMonth()) + '-' + getActualDay();
+}
 
 export default function Calendar(){
-    const initialNotes = useStore(state=>state.calendarStore)
-    const [calendarNotes,setCalendarNotes] = useState(initialNotes);
-    const [month,setMonth]= useState<string>("September");
-    const [howMuchDaysInMonth, setHowMuchDaysInMonth]=useState(0)
+    const [calendarNotes,setCalendarNotes] = useState<string[]>([]);
+    const [month,setMonth]= useState<string>(getActualMonth())
+    const [monthNumber,setMonthNumber]= useState<number>(getNumberMonthByName(month));
     const [year,setYear]= useState<number>(getActualYear());
-    const [tempCalendarNotes,setTempCalendarNotes] = useState([]);
-    const [modifyValue, setModifyValue]=useState<string>("");
-    const [modifyMode,setModifyMode]=useState<number>(-1)
-    const [newNote, setNewNote] = useState<string>('');
-    const [error,setError]= useState<boolean>(false);
-    const [sentinella,setSentinella]=useState(false);
-    
-        useEffect(()=>{
-        const calendarDays=daysInMonth(year,getNumberMonthByName(month));
-        setHowMuchDaysInMonth(calendarDays);
-        console.log("CalendarDays:"+calendarDays);
-        const tempCalendar:string[]=[...calendarNotes];
-        for(let i=0;i<calendarDays;i++){
-            console.log(tempCalendar+" :CALENDARRRRRR");
-            if(tempCalendar[i] && tempCalendar[i]!="void"){
-                tempCalendar[i]="";
+    const [table,setTable]= useState<object>({});
+    const calendarObject=useStore((state)=> state.calendarObject);
+    const getToday=getActualDate();
+
+
+    function renderCalendar(){
+        let tempCalendar:string[]=[...calendarNotes];
+        for(let i=0;i<daysInMonth(year,monthNumber-1);i++){
+            if(daysInMonth(year,monthNumber-1)==28 && tempCalendar.length>28){
+                if(tempCalendar.length==31){
+                    tempCalendar.splice(28,3);
+                }
+                if(tempCalendar.length==30){
+                    tempCalendar.splice(29,2);
+                }  
+            }
+            else if(daysInMonth(year,monthNumber-1)==29 && tempCalendar.length>29){
+                if(tempCalendar.length==31){
+                    tempCalendar.splice(28,2);
+                }
+                if(tempCalendar.length==30){
+                    tempCalendar.splice(29,1);
+                }  
+            }
+
+            if(daysInMonth(year,monthNumber)==30 && tempCalendar.length>30){
+                tempCalendar.splice(30,1);
+            }
+
+            const zeroIn= monthNumber<10 ? "0": "";
+            if(calendarObject[`${year}-${zeroIn}${monthNumber}-${i+1}`]){
+                tempCalendar[i]=calendarObject[`${year}-${zeroIn}${monthNumber}-${i+1}`]
             }
             else{
                 tempCalendar[i]="";
-
             }
         }
-        console.log(tempCalendar.length+ "CIAOOOOOOOOOOOOo");
-        console.log("month:"+ month+ "   month number:"+getNumberMonthByName(month)+ "   dayInMonth:"+ daysInMonth(year,getNumberMonthByName(month)));
-        tempCalendar[3]="cadwoao"
-        setCalendarNotes(tempCalendar)
-    },[month]);
-    
 
-    if(sentinella==false){
-    
-        setSentinella(true);
+        setCalendarNotes(tempCalendar)
+        tempCalendar=[];
     }
-    
+    useEffect(()=>{
+        renderCalendar();
+    },[calendarObject,month,monthNumber])
+
     const renderCalendarNotes= calendarNotes.map((x:string, i:number)=> {
+            const zeroIn= monthNumber<10 ? "0": "";
         return (
-            <div key={i}className="CalendarGrid justify-center">
+            <div onClick={()=> {setTable({value:x, date:`${i+1} ${month} ${year}`, dateFormat:`${year}-${zeroIn}${monthNumber}-${i+1}`})}} key={i}className="CalendarGrid justify-center">
                 <div className="CalendarGridChild text-yellow-500 ">
-                    {x}
+                 {i+1+" "}
+                 <span className="text-red-500 underline">
+                    {`${year}-${monthNumber}-${i+1}`==getToday && "  Today"}
+                </span>
                 </div>
-                <div>
-                    {i+1}
+                <div className="h-5 uppercase">
+                    {x}
                 </div>
             </div>
         )
     }) 
 
-    function calendarINCHandler(i:number):any{
-        const numberMonth=getNumberMonthByName(month);
-        const nameMonth=getMonthName(numberMonth+i);
-        if(numberMonth==12){
+    function calendarINCHandler(i:number):void {
+        if(monthNumber==12){
             setYear(year+i);
         }
-        setMonth(nameMonth)
+        setMonth(getMonthName(monthNumber+i))
     }
-
     useEffect(()=>{
-        console.log("Setting notes in Calendar localStorage...")
-        localStorage.setItem("calendar",JSON.stringify([...calendarNotes]));  
+        setMonthNumber(getNumberMonthByName(month))
+    },[month])
+    
+    useEffect(()=>{
+        console.log("Setting notes in Calendar localStorage...") 
+        localStorage.setItem("calendarObject",JSON.stringify(calendarObject))  
     },[calendarNotes]);
 
     return(
-        < div className="CalendarRoot">
-            <div className="flex justify-between">
-                <div className="CalendarActualDate">
+        <>
+        {Object.keys(table).length==0
+        ?
+            <div className="CalendarRoot">
+                <div className="flex justify-between">
+                    <div className="CalendarActualDate">
+                        <div>
+                            <h1>{year}</h1>
+                            <h1>{month}</h1>
+                        </div>
+                    </div>
                     <div>
-                        <h1>{year}</h1>
-                        <h1>{month}</h1>
+                        <button className="bg-red-200 px-3 rounded-lg" style={{padding:"0,0,0,0"}} onClick={()=>calendarINCHandler(-1)}>-</button>
+                        <button className="bg-green-200 px-3 rounded-lg" onClick={()=>calendarINCHandler(1)}>+</button>
                     </div>
-
-                  <div>
-                    </div>
-
+                    
                 </div>
-                <div>
-                    <button className="bg-red-200 px-3 rounded-lg" style={{padding:"0,0,0,0"}} onClick={()=>calendarINCHandler(-1)}>-</button>
-                    <button className="bg-green-200 px-3 rounded-lg" onClick={()=>calendarINCHandler(1)} >+</button>
+                <div className="CalendarGridMiddle">
+                    {renderCalendarNotes}
                 </div>
-                
             </div>
-            <div className="CalendarGrid">
-                {renderCalendarNotes}
-            </div>
-        </div>
+        : 
+            <>
+            {("value" in table && "date" in table) 
+            &&
+            <>
+                <div className="CalendarTableRoot">
+                    <CalendarTable  dateValue={table.date} dateFormat={table.dateFormat}/>
+                </div>
+                <button className="exitTable" onClick={()=> setTable({})}>Exit</button>
+            </>
+            }
+            </>
+        }
+        </>
     )
 }

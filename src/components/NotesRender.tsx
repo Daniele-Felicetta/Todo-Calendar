@@ -1,18 +1,29 @@
 import {useRef,useEffect,useState} from 'react'
 import { v4 as uuidv4 } from 'uuid'; 
 import  {useStore} from './Controller';
+import AddToCalendarHandler from './AddToCalendar';
 
+function getActualDate(){
+    let today = new Date();
+    let dd = String(today.getDate()).padStart(2, '0');
+    let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let yy = today.getFullYear()
+    return yy + '-' + mm + '-' + dd;
+}
 export default function NotesRender(){
-    const [notes, setNotes]=useState<any>(useStore((state)=> state.notesStore));
+    const [notes, setNotes]=useState<string[]>(useStore((state)=> state.notesStore));
+    const setCalendarObject =useStore((state)=> state.setCalendarObject);
     const [modifyValue, setModifyValue]=useState<string>("");
     const [modifyMode,setModifyMode]=useState<number>(-1)
     const [newNote, setNewNote] = useState<string>('');
     const [error,setError]= useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const refInputNoteToCalendar = useRef<Record<string, HTMLInputElement | null>>({});
     
     const renderNotes=notes.map((x:string,i:number) => {
+        const id=uuidv4();
         return(
-            <div key={uuidv4()} className="CompleteNotes flex items-center flex-col ">
+            <div key={id} className="CompleteNotes flex items-center flex-col ">
                 <div className='DivisionToCalendar flex items-center '>
                     <div className="WindowNote mr-10 item rounded-lg mt-10 w-96 h-20 uppercase">
                         {(modifyMode==i)
@@ -26,15 +37,12 @@ export default function NotesRender(){
                                     placeholder={x} 
                                     onKeyDown={(e)=>e.key==="Enter"&& confirmHandler(i)} 
                                     onChange={(e)=>{setModifyValue(e.target.value)}}
-                                    autoFocus
-                                    
+                                    autoFocus  
                                 />
-
                                 <button onClick={()=>confirmHandler(i)}className='mr-2 mt-1 rounded-lg w-20 text-xs bg-emerald-200'>Confirm?</button>
                             </>
 
                         :
-
                             <>
                                 <p className="List">{x}</p>
                                 <div>
@@ -45,13 +53,23 @@ export default function NotesRender(){
                         }
                     </div>
                     <div className='flex flex-col '>
-                        <input type="date" />
-                        <button> Add to calendar</button>
+                        <input type="date" 
+                            min={getActualDate()} 
+                            ref={(e)=>{refInputNoteToCalendar.current[id]=e}}
+                        />
+                        <button onClick={()=>{addToCalendarHandler(x,id)}}>Add to calendar</button>
                     </div>
                 </div>
             </div>
         )
     });
+
+    function addToCalendarHandler(x:string,id:string) {
+        if(refInputNoteToCalendar.current[id]?.value){
+            const dateString:string=refInputNoteToCalendar.current[id]?.value;
+            setCalendarObject(dateString,x);
+        }
+    }
     
     function deleteHandler(i:number) {
         let newArray=[...notes];
@@ -67,7 +85,6 @@ export default function NotesRender(){
         const newArray=[...notes];
         newArray.splice(i,1,modifyValue)
         setNotes(newArray);
-
         //Clear states
         setModifyMode(-1)
         setModifyValue("")
@@ -89,9 +106,8 @@ export default function NotesRender(){
         localStorage.setItem("notes",JSON.stringify([...notes]));
     },[notes]);
 
-    
     return (
-        <>
+        <div>
             <div className='CompleteNotes flex items-center flex-col flex-container-center'>
                 <div>{renderNotes}</div>
                 <div className='Add mt-5'>
@@ -107,15 +123,10 @@ export default function NotesRender(){
                     </div>
                     <button className="addButton ml-5 rounded-lg px-1 bg-emerald-500" onClick={addHandler}>Add</button>
                 </div>
-                <div>
-
-                </div>
             </div>
-
-
-            <div className='flex justify-center mt-5'>
+            <div className='mt-5'>
                 {error && <p className='text-red-500'>Inserire un valore corretto</p>}
             </div>
-        </>
+        </div>
     )
 }
