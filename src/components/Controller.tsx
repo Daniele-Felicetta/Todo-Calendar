@@ -1,12 +1,11 @@
 import NotesRender from "./NotesRender"
 import Calendar from "./Calendar";
 import {create} from 'zustand'
-import AddToCalendarHandler from "./AddToCalendar";
 
 interface CalendarObject {
-    lastDateRequested: string | undefined;
-    lastValueRequested: string | undefined;
-    [date: string]: string | undefined; 
+    lastDateRequested: string ;
+    lastValueRequested: string ;
+    [date: string]: string; 
 }
 
 interface Store{
@@ -62,15 +61,15 @@ export const useStore = create<Store>((set) => ({
 export default function Controller(){
     return (
         <>
-        <div className="RootTool">
-            <NotesRender/>
-            <Calendar />
-            <hr />
-        </div>
+            <div className="RootTool">
+                <NotesRender/>
+                <Calendar />
+                <hr />
+            </div>
 
-          <footer>
-          <p>Made by Danie</p>
-      </footer>
-      </>
+            <footer>
+                <p>Made by El Fuego</p>
+            </footer>
+        </>
     )
 }

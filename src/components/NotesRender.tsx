@@ -1,7 +1,6 @@
 import {useRef,useEffect,useState} from 'react'
 import { v4 as uuidv4 } from 'uuid'; 
 import  {useStore} from './Controller';
-import AddToCalendarHandler from './AddToCalendar';
 
 function getActualDate(){
     let today = new Date();
@@ -18,7 +17,7 @@ export default function NotesRender(){
     const [newNote, setNewNote] = useState<string>('');
     const [error,setError]= useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement | null>(null);
-    const refInputNoteToCalendar = useRef<Record<string, HTMLInputElement | null>>({});
+    const refInputNoteToCalendar = useRef<Record<string, HTMLInputElement>>({});
     
     const renderNotes=notes.map((x:string,i:number) => {
         const id=uuidv4();
@@ -55,7 +54,7 @@ export default function NotesRender(){
                     <div className='flex flex-col '>
                         <input type="date" 
                             min={getActualDate()} 
-                            ref={(e)=>{refInputNoteToCalendar.current[id]=e}}
+                            ref={(e)=>{if(e!=null) refInputNoteToCalendar.current[id]=e}}
                         />
                         <button onClick={()=>{addToCalendarHandler(x,id)}}>Add to calendar</button>
                     </div>
@@ -66,7 +65,7 @@ export default function NotesRender(){
 
     function addToCalendarHandler(x:string,id:string) {
         if(refInputNoteToCalendar.current[id]?.value){
-            const dateString:string=refInputNoteToCalendar.current[id]?.value;
+            const dateString:string = refInputNoteToCalendar.current[id]?.value;
             setCalendarObject(dateString,x);
         }
     }

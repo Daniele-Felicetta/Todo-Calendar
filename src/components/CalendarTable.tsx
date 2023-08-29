@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import {useState} from "react"
 import {useStore} from './Controller'
 
 export default function CalendarTable(props:any){
@@ -21,7 +21,7 @@ export default function CalendarTable(props:any){
                             <input type="text" onChange={(e)=>setModifyNote(e.target.value)} className="rounded-lg  border-solid border-gray-500 border-2 ml-2"/>
                             <button className="ml-5" onClick={()=>{setCalendarObject(props.dateFormat,modifyNote); setModifyMode(false)}}>Confirm</button> 
                         </>
-                        
+
                     :   <button className="ml-5" onClick={()=>setModifyMode(true)}>Modify</button>
                     }
             </div>  

@@ -1,4 +1,3 @@
-import NotesRender from './components/NotesRender'
 import './App.scss'
 import Controller from './components/Controller'
 

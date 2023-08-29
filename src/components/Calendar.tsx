@@ -40,7 +40,7 @@ export default function Calendar(){
     const [month,setMonth]= useState<string>(getActualMonth())
     const [monthNumber,setMonthNumber]= useState<number>(getNumberMonthByName(month));
     const [year,setYear]= useState<number>(getActualYear());
-    const [table,setTable]= useState<object>({});
+    const [table,setTable]= useState<any>({});
     const calendarObject=useStore((state)=> state.calendarObject);
     const getToday=getActualDate();
 
