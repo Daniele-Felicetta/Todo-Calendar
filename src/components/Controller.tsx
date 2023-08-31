@@ -3,9 +3,7 @@ import Calendar from "./Calendar";
 import {create} from 'zustand'
 
 interface CalendarObject {
-    lastDateRequested: string ;
-    lastValueRequested: string ;
-    [date: string]: string; 
+    [date: string]: string[]; 
 }
 
 interface Store{
@@ -47,15 +45,17 @@ export const useStore = create<Store>((set) => ({
     notesStore: getNotesStorage(),
     calendarStore: getCalendarStorage(),
     calendarObject:getCalendarObject(),
-    setCalendarObject: (calendarDate, calendarNote) => set((state) => ({
-        calendarObject: {
-          ...state.calendarObject,
-          [calendarDate]: calendarNote,
-          lastDateRequested: calendarDate,
-          lastValueRequested: calendarNote
-        }
-      })),
-  }));
+    setCalendarObject: (calendarDate, calendarNote) => set((state) => {
+        const existingNotes = state.calendarObject[calendarDate] || [];
+        const updatedNotes = [...existingNotes, calendarNote];
+        return {
+            calendarObject: {
+                ...state.calendarObject,
+                [calendarDate]: updatedNotes
+            }
+        };
+    }),
+}));
 
   
 export default function Controller(){

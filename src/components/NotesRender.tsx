@@ -5,7 +5,7 @@ import  {useStore} from './Controller';
 function getActualDate(){
     let today = new Date();
     let dd = String(today.getDate()).padStart(2, '0');
-    let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
     let yy = today.getFullYear()
     return yy + '-' + mm + '-' + dd;
 }
@@ -51,7 +51,7 @@ export default function NotesRender(){
                             </>
                         }
                     </div>
-                    <div className='flex flex-col '>
+                    <div className='addToCalendar flex flex-col '>
                         <input type="date" 
                             min={getActualDate()} 
                             ref={(e)=>{if(e!=null) refInputNoteToCalendar.current[id]=e}}
@@ -67,6 +67,7 @@ export default function NotesRender(){
         if(refInputNoteToCalendar.current[id]?.value){
             const dateString:string = refInputNoteToCalendar.current[id]?.value;
             setCalendarObject(dateString,x);
+            
         }
     }
     

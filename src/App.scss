@@ -16,7 +16,7 @@
     align-items: center;
 }
 input{
-    
+
 }
 button{
     padding:0 20px;
@@ -107,7 +107,29 @@ footer{
     }
     .CalendarRoot{
         margin-top: 50px;
-        width:700px;
+        width:80vw;
     }
     
+}
+@media screen and (max-width:800px){
+    .CalendarGridMiddle{
+        grid-template-columns: 2fr 2fr 2fr;
+        grid-template-rows: 2fr 2fr 2fr 2fr 2fr 2fr 2fr;
+        width:80vw;
+    }
+    .WindowNote{
+        width: 60vw;
+        margin-right: 3vw;
+    }
+    .addToCalendar{
+        width:25vw;
+        font-size: 12px;
+        word-wrap: break-word;
+    }
+    .CalendarTableRoot{
+        width: 80vw;
+    }
+    .CompleteNotes{
+        width:70vw;
+    }
 }

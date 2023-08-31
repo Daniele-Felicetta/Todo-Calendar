@@ -2,6 +2,16 @@ import { useState,useEffect } from "react";
 import {useStore} from './Controller'
 import CalendarTable from "./CalendarTable";
 
+type Table={
+    value: string
+    date: string
+    dateFormat: string
+}| object
+
+type CalendarObj={
+    [date:string]: string[]
+}
+
 function daysInMonth(year:number, month:number) {
     const newDate= new Date(year, month+1, 0).getDate();
     return newDate;
@@ -10,14 +20,14 @@ function getNumberMonthByName(monthName:string){
     const numberMonth:number = new Date(Date.parse(monthName +" 1, 2012")).getMonth()+1;
     return numberMonth;
 }
-function getMonthName(monthNumber:number) {
-    const date = new Date();
-    date.setMonth(monthNumber - 1);
+function getMonthName(monthNumber: number): string {
+    const date = new Date(2022, monthNumber - 1, 1);
     return date.toLocaleString('en-US', { month: 'long' });
 }
+
 function getActualDay(){
     const date = new Date(); 
-    let day= date.getDay()+27; 
+    let day= date.getDate(); 
     return day;
 }
 
@@ -35,13 +45,17 @@ function getActualDate(){
     return getActualYear() + '-' + getNumberMonthByName(getActualMonth()) + '-' + getActualDay();
 }
 
+for(var i = 1; i <13; i++) {
+    console.log(getMonthName(i))
+}
+
 export default function Calendar(){
     const [calendarNotes,setCalendarNotes] = useState<string[]>([]);
     const [month,setMonth]= useState<string>(getActualMonth())
     const [monthNumber,setMonthNumber]= useState<number>(getNumberMonthByName(month));
     const [year,setYear]= useState<number>(getActualYear());
-    const [table,setTable]= useState<any>({});
-    const calendarObject=useStore((state)=> state.calendarObject);
+    const [table,setTable]= useState<Table>({});
+    const calendarObject=useStore<CalendarObj>((state)=> state.calendarObject);
     const getToday=getActualDate();
 
 
@@ -71,22 +85,26 @@ export default function Calendar(){
 
             const zeroIn= monthNumber<10 ? "0": "";
             if(calendarObject[`${year}-${zeroIn}${monthNumber}-${i+1}`]){
-                tempCalendar[i]=calendarObject[`${year}-${zeroIn}${monthNumber}-${i+1}`]
+                const tempValue=calendarObject[`${year}-${zeroIn}${monthNumber}-${i+1}`]
+                if(typeof tempValue==="string"){
+                    tempCalendar[i]= tempValue
+                }
+                else{
+                    tempCalendar[i]= calendarObject[`${year}-${zeroIn}${monthNumber}-${i+1}`][0]
+                }
             }
             else{
                 tempCalendar[i]="";
             }
         }
-
         setCalendarNotes(tempCalendar)
         tempCalendar=[];
     }
-    useEffect(()=>{
-        renderCalendar();
-    },[calendarObject,month,monthNumber])
+    
+    
 
     const renderCalendarNotes= calendarNotes.map((x:string, i:number)=> {
-            const zeroIn= monthNumber<10 ? "0": "";
+        const zeroIn= monthNumber<10 ? "0": "";
         return (
             <div onClick={()=> {setTable({value:x, date:`${i+1} ${month} ${year}`, dateFormat:`${year}-${zeroIn}${monthNumber}-${i+1}`})}} key={i}className="CalendarGrid justify-center">
                 <div className="CalendarGridChild text-yellow-500 ">
@@ -102,21 +120,24 @@ export default function Calendar(){
         )
     }) 
 
-    function calendarINCHandler(i:number):void {
-        if(monthNumber==12){
+    function calendarINCHandler(i:number):void{
+    setMonth(getMonthName(monthNumber+i));
+        if((monthNumber==12 && i==1) || (i==-1 && monthNumber==1)){
             setYear(year+i);
         }
-        setMonth(getMonthName(monthNumber+i))
     }
-    useEffect(()=>{
-        setMonthNumber(getNumberMonthByName(month))
-    },[month])
     
     useEffect(()=>{
         console.log("Setting notes in Calendar localStorage...") 
         localStorage.setItem("calendarObject",JSON.stringify(calendarObject))  
     },[calendarNotes]);
-
+    
+    useEffect(()=>{
+        console.log(calendarObject)
+        console.log(monthNumber)
+        setMonthNumber(getNumberMonthByName(month))
+        renderCalendar();
+    },[calendarObject,month,monthNumber])
     return(
         <>
         {Object.keys(table).length==0
@@ -131,7 +152,7 @@ export default function Calendar(){
                     </div>
                     <div>
                         <button className="bg-red-200 px-3 rounded-lg" style={{padding:"0,0,0,0"}} onClick={()=>calendarINCHandler(-1)}>-</button>
-                        <button className="bg-green-200 px-3 rounded-lg" onClick={()=>calendarINCHandler(1)}>+</button>
+                        <button className="bg-green-200 px-3 rounded-lg" onClick={()=>calendarINCHandler(+1)}>+</button>
                     </div>
                     
                 </div>
@@ -143,12 +164,12 @@ export default function Calendar(){
             <>
             {("value" in table && "date" in table) 
             &&
-            <>
+            <div>
                 <div className="CalendarTableRoot">
                     <CalendarTable  dateValue={table.date} dateFormat={table.dateFormat}/>
                 </div>
                 <button className="exitTable" onClick={()=> setTable({})}>Exit</button>
-            </>
+            </div>
             }
             </>
         }
