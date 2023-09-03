@@ -1,8 +1,6 @@
 import {useState, useRef} from "react"
 import {useStore} from './Controller'
 import { v4 as uuidv4 } from 'uuid'; 
-import { render } from "react-dom";
-
 
 export default function CalendarTable(props:any){
     const setCalendarObject =useStore((state)=> state.setCalendarObject);
@@ -16,7 +14,7 @@ export default function CalendarTable(props:any){
 
     let renderNotes:React.ReactNode
     let renderNode:React.ReactNode
-
+    
     if(calendarObject[props.dateFormat]){
         console.log(calendarObject[props.dateFormat] +"   "+ typeof calendarObject[props.dateFormat])
         let notes: string[]=[];
@@ -58,7 +56,6 @@ export default function CalendarTable(props:any){
     }
     function addHandler(date:string,value:string):void {
         if(newNote){
-            console.log(value);
             setCalendarObject(date,value);
             setNewNote("");
             setError(false);
