@@ -56,7 +56,7 @@ export default function NotesRender(){
                             min={getActualDate()} 
                             ref={(e)=>{if(e!=null) refInputNoteToCalendar.current[id]=e}}
                         />
-                        <button onClick={()=>{addToCalendarHandler(x,id)}}>Add to calendar</button>
+                        <button onClick={()=>{addToCalendarHandler(x,id)}}><p>Add to calendar</p></button>
                     </div>
                 </div>
             </div>
@@ -67,7 +67,6 @@ export default function NotesRender(){
         if(refInputNoteToCalendar.current[id]?.value){
             const dateString:string = refInputNoteToCalendar.current[id]?.value;
             setCalendarObject(dateString,x);
-            
         }
     }
     
@@ -83,16 +82,16 @@ export default function NotesRender(){
     
     function confirmHandler(i:number){
         const newArray=[...notes];
-        newArray.splice(i,1,modifyValue)
+        newArray.splice(i,1,modifyValue);
         setNotes(newArray);
-        //Clear states
-        setModifyMode(-1)
-        setModifyValue("")
+
+        setModifyMode(-1);
+        setModifyValue("");
     }
 
     function addHandler(){
         if(newNote){
-            setNotes([...notes, newNote])
+            setNotes([...notes, newNote]);
             setNewNote("");
             setError(false);
         }
@@ -102,7 +101,7 @@ export default function NotesRender(){
     }
 
     useEffect(()=>{
-        console.log("Setting notes in localStorage...")
+        console.log("Setting notes in localStorage...");
         localStorage.setItem("notes",JSON.stringify([...notes]));
     },[notes]);
 
@@ -117,7 +116,7 @@ export default function NotesRender(){
                             "type="text" 
                             value={newNote} 
                             placeholder={"Add note"} 
-                            onKeyDown={(e)=>e.key==="Enter"&&addHandler()} 
+                            onKeyDown={(e)=>e.key==="Enter" && addHandler()} 
                             onChange={(e)=>{setNewNote(e.target.value)}}
                         />
                     </div>

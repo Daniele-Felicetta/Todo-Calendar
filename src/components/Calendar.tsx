@@ -44,11 +44,6 @@ function getActualYear(){
 function getActualDate(){
     return getActualYear() + '-' + getNumberMonthByName(getActualMonth()) + '-' + getActualDay();
 }
-
-for(var i = 1; i <13; i++) {
-    console.log(getMonthName(i))
-}
-
 export default function Calendar(){
     const [calendarNotes,setCalendarNotes] = useState<string[]>([]);
     const [month,setMonth]= useState<string>(getActualMonth())
@@ -133,8 +128,6 @@ export default function Calendar(){
     },[calendarNotes]);
     
     useEffect(()=>{
-        console.log(calendarObject)
-        console.log(monthNumber)
         setMonthNumber(getNumberMonthByName(month))
         renderCalendar();
     },[calendarObject,month,monthNumber])

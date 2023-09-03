@@ -11,6 +11,7 @@ interface Store{
     calendarStore: string[]
     calendarObject:CalendarObject
     setCalendarObject(calendarDate:string,calendarNote:string):void
+    modifyCalendarObject(calendarDate:string,calendarNote:string,i:number):any
 }
 
 function getNotesStorage(){
@@ -52,6 +53,16 @@ export const useStore = create<Store>((set) => ({
             calendarObject: {
                 ...state.calendarObject,
                 [calendarDate]: updatedNotes
+            }
+        };
+    }),
+    modifyCalendarObject: (calendarDate, calendarNote,i) => set((state) => {
+        const existingDayNotes = [...(state.calendarObject[calendarDate] || [])];
+        existingDayNotes[i]= calendarNote;
+        return {
+            calendarObject: {
+                ...state.calendarObject,
+                [calendarDate]: existingDayNotes,
             }
         };
     }),

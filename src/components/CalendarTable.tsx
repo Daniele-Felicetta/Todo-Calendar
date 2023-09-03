@@ -1,39 +1,94 @@
-import {useState} from "react"
+import {useState, useRef} from "react"
 import {useStore} from './Controller'
+import { v4 as uuidv4 } from 'uuid'; 
+import { render } from "react-dom";
+
 
 export default function CalendarTable(props:any){
-
-    const [addNote, setAddNote]=useState<string>("");
     const setCalendarObject =useStore((state)=> state.setCalendarObject);
+    const inputRef = useRef<HTMLInputElement | null>(null);
     const calendarObject=useStore((state)=> state.calendarObject);
-    const [modifyNote,setModifyNote]=useState<string>("");
-    const [modifyMode,setModifyMode]=useState<boolean>(false)
-    console.log(typeof calendarObject[props.dateFormat])
+    const modifyCalendarObject=useStore((state)=> state.modifyCalendarObject);
+    const [modifyMode,setModifyMode]=useState<number>(-1)
+    const [newNote, setNewNote] = useState<string>('');
+    const [modifyValue, setModifyValue]=useState<string>("");
+    const [error,setError]= useState<boolean>(false);
+
+    let renderNotes:React.ReactNode
+    let renderNode:React.ReactNode
+
+    if(calendarObject[props.dateFormat]){
+        console.log(calendarObject[props.dateFormat] +"   "+ typeof calendarObject[props.dateFormat])
+        let notes: string[]=[];
+        if(typeof calendarObject[props.dateFormat]== 'string'){
+            notes[0]=calendarObject[props.dateFormat][0];
+            console.log(notes);
+        }
+        else{
+            notes=calendarObject[props.dateFormat]
+        }
+        renderNotes=notes.map((x,i)=>{
+            const id=uuidv4();
+            return(
+                <div className={"flex my-4 ml-4"}key={id}>
+                    {modifyMode==i?
+                        <>
+                            <input 
+                               ref={inputRef}
+                               type="textarea" 
+                               value={modifyValue}
+                               placeholder={x} 
+                               onChange={(e)=>{setModifyValue(e.target.value)}}
+                               onKeyDown={(e)=>{e.key=="Enter" && modifyCalendarObject(props.dateFormat,modifyValue,i); setModifyMode(-1); setModifyValue("")}}
+                               autoFocus  
+                               className="rounded-lg  border-solid border-gray-500 border-2 ml-2"
+                            />
+                            <button className="ml-5" onClick={()=>{modifyCalendarObject(props.dateFormat,modifyValue,i); setModifyMode(-1); setModifyValue("")}}>Confirm</button> 
+                        </>
+                    :
+                        <>
+                            <h2>{x}</h2>
+                            <button className="ml-5" onClick={()=>setModifyMode(i)}>Modify</button>
+                        </>
+                    }
+                </div>
+            )
+        });
+        notes=[];
+    }
+    function addHandler(date:string,value:string):void {
+        if(newNote){
+            console.log(value);
+            setCalendarObject(date,value);
+            setNewNote("");
+            setError(false);
+        }
+        else{
+            setError(true);
+        }
+    }
 
     return (
-        <div className="flex justify-between pt-3 pl-3">
-            {calendarObject[props.dateFormat]
-            ?
-                <div className="flex ">   
-                    <h2 className="text-green-700">Title: <span className="text-black uppercase">{typeof calendarObject[props.dateform]==="string"? calendarObject[props.dateFormat]: calendarObject[props.dateFormat][0]}</span></h2>
-                        
-                        {modifyMode
-                        ?   <>
-                                <input type="text" onChange={(e)=>setModifyNote(e.target.value)} className="rounded-lg  border-solid border-gray-500 border-2 ml-2"/>
-                                <button className="ml-5" onClick={()=>{setCalendarObject(props.dateFormat,modifyNote); setModifyMode(false)}}>Confirm</button> 
-                            </>
-
-                        :   <button className="ml-5" onClick={()=>setModifyMode(true)}>Modify</button>
-                        }
-                </div>  
-            :
-                <div className="flex">
-                    <input type="text" onChange={(e)=>setAddNote(e.target.value)} className="mr-2 rounded-lg  border-solid border-gray-500 border-2"/>
-                    <button onClick={()=>{setCalendarObject(props.dateFormat,addNote)}} >Add Note</button>
-                </div>
-        }
-            <h2 className="text-yellow-500 pr-3">Day: <span className="text-black">{props.dateValue}</span></h2>
+        <div className="pt-3 pl-3">
+            <div className="flex justify-between">
+                <div className=" text-green-700 capitalize">Notes:{renderNotes}</div>
+                <h2 className="text-yellow-500 mr-5">Day: <span className="text-black">{props.dateValue}</span></h2>
+                {renderNode}  
+            </div>
+            <div className="flex h-7">
+                <input 
+                  className="rounded-lg  border-solid border-gray-500 border-2 ml-4 mr-4" 
+                  type="textarea" 
+                  value={newNote} 
+                  placeholder={"Add note"} 
+                  onKeyDown={(e)=>e.key==="Enter" && addHandler(props.dateFormat,newNote)} 
+                  onChange={(e)=>{setNewNote(e.target.value)}}
+                />
+                <button onClick={()=>{addHandler(props.dateFormat,newNote)}}>Add Note</button>
+            </div>
+            <div className='mt-5'>
+                {error && <p className='text-red-500'>Inserire un valore corretto</p>}
+            </div>
         </div>
-
     )
 }
