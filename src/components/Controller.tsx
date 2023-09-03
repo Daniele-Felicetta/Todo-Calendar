@@ -79,7 +79,7 @@ export default function Controller(){
             </div>
 
             <footer>
-                <p>Made by El Fuego</p>
+                <p>Made by <a href="https://danielefelicetta.it">Daniele Felicetta</a></p>
             </footer>
         </>
     )
